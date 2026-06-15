@@ -5,7 +5,6 @@ import (
 	"log"
 
 	"github.com/VelVit24/projext/models"
-	_ "github.com/lib/pq"
 )
 
 func InsertCategory(db *sql.DB, cat *models.Category) error {

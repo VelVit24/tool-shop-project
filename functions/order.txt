@@ -1,0 +1,38 @@
+Статусы заказа
+created
+processing
+completed
+cancelled
+
+Создать заказ - только пользователь
+POST /orders
+При создании заказа - создаем заказ, из корзины получаем все товары, добавляем их в таблицу orderItems, удаляем их из корзины
+201 Created
+400 Bad Request
+403 Forbidden
+
+Изменение заказа - только админка
+PUT /admin/orders/1
+{
+    "status": ...
+}
+200 OK
+400 Bad Request
+403 Forbidden
+
+Удаление заказа - только админка
+DELETE /admin/orders/1
+204 No Content
+400 Bad Request
+403 Forbidden
+
+Получение заказов пользователь
+GET /orders
+200 OK
+400 Bad Request
+
+Получение заказов админ
+GET /admin/orders
+200 OK
+400 Bad Request
+403 Forbidden

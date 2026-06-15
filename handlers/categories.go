@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"database/sql"
 	"net/http"
 	"strconv"
 
@@ -9,10 +8,6 @@ import (
 	"github.com/VelVit24/projext/repository"
 	"github.com/gin-gonic/gin"
 )
-
-type Handler struct {
-	DB *sql.DB
-}
 
 func (h *Handler) POSTCategories(c *gin.Context) {
 	cat := models.Category{}

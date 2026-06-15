@@ -5,17 +5,25 @@ import (
 	"strconv"
 
 	"github.com/VelVit24/projext/models"
-	"github.com/VelVit24/projext/repository"
+	"github.com/VelVit24/projext/service"
 	"github.com/gin-gonic/gin"
 )
 
-func (h *Handler) POSTInstruments(c *gin.Context) {
-	instr := models.Instrument{}
-	if err := c.ShouldBindJSON(&instr); err != nil {
+type ProductHandler struct {
+	service *service.ProductService
+}
+
+func NewProductHandler(service *service.ProductService) *ProductHandler {
+	return &ProductHandler{service: service}
+}
+
+func (h *ProductHandler) PostAdminProduct(c *gin.Context) {
+	product := models.Product{}
+	if err := c.ShouldBindJSON(&product); err != nil {
 		c.JSON(http.StatusBadRequest, err)
 		return
 	}
-	err := repository.InsertInstrument(h.DB, &instr)
+	err := h.service.CreateProduct(&product)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err)
 		return
@@ -23,8 +31,8 @@ func (h *Handler) POSTInstruments(c *gin.Context) {
 	c.Status(200)
 }
 
-func (h *Handler) PUTInstruments(c *gin.Context) {
-	instr := models.Instrument{}
+func (h *ProductHandler) PutAdminProduct(c *gin.Context) {
+	instr := models.Product{}
 	if err := c.ShouldBindJSON(&instr); err != nil {
 		c.JSON(http.StatusBadRequest, err)
 		return
@@ -35,20 +43,20 @@ func (h *Handler) PUTInstruments(c *gin.Context) {
 		return
 	}
 	instr.Id = id
-	err = repository.UpdateInstrument(h.DB, &instr)
+	err = h.service.UpdateProduct(&instr)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
 	c.Status(200)
 }
-func (h *Handler) DELETEInstruments(c *gin.Context) {
+func (h *ProductHandler) DeleteAdminInstruments(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err)
 		return
 	}
-	err = repository.DeleteInstrument(h.DB, id)
+	err = h.service.DeleteProduct(id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err)
 		return
@@ -56,8 +64,8 @@ func (h *Handler) DELETEInstruments(c *gin.Context) {
 	c.Status(204)
 }
 
-func (h *Handler) GETInstruments(c *gin.Context) {
-	cats, err := repository.SelectInstrument(h.DB)
+func (h *ProductHandler) GetAdminInstruments(c *gin.Context) {
+	cats, err := h.service.GetProduct()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err)
 		return

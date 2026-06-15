@@ -1,0 +1,43 @@
+Добавление категории
+POST /admin/categories
+{
+    "name": "Category 1",
+}
+201 Created
+400 Bad Request
+403 Forbidden
+
+
+Обновление категории
+PUT /admin/categories/1
+{
+    "name": "Category 1.2",
+}
+200 OK
+400 Bad Request
+403 Forbidden
+
+
+Удаление категории
+DELETE /admin/categories/1
+204 No Content
+400 Bad Request
+403 Forbidden
+
+
+Из админки и клиента
+Получение категорий
+GET /categories
+GET /admin/categories
+200 OK
+400 Bad Request
+[
+ {
+  "id":1,
+  "name":"Дрели"
+ },
+ {
+  "id":2,
+  "name":"Отвертки"
+ }
+]

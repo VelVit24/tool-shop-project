@@ -1,0 +1,40 @@
+Везде требуется авторизация, id_user через токен
+
+Добавить товар в корзину
+POST /cart/items
+{
+    "id_product": 1,
+    "amount": 2
+}
+Проверка остатков!
+200 OK
+400 Bad Request
+403 Forbidden
+
+
+Изменение товара в корзине
+PUT /cart/items/1
+{
+    "amount": 2
+}
+Проверка остатков!
+200 OK
+400 Bad Request
+403 Forbidden
+
+
+Удаление товара из корзины
+DELETE /cart/items/1
+204 No Content
+400 Bad Request
+403 Forbidden
+
+
+Получение товаров корзины
+GET /cart
+200 OK
+400 Bad Request
+{
+    "id_product": ...,
+    "amount": ...
+}

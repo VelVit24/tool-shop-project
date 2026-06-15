@@ -1,6 +1,6 @@
 package models
 
-type Instrument struct {
+type Product struct {
 	Id          int    `json:"id"`
 	Name        string `json:"name"`
 	Id_category int    `json:"id_cat"`

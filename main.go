@@ -1,9 +1,10 @@
 package main
 
 import (
+	"github.com/VelVit24/projext/app"
 	"github.com/VelVit24/projext/database"
-	"github.com/VelVit24/projext/handlers"
-	mw "github.com/VelVit24/projext/middleware"
+	"github.com/VelVit24/projext/routes"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -11,19 +12,16 @@ func main() {
 	router := gin.Default()
 	db := database.ConnDB()
 	defer db.Close()
-	h := handlers.Handler{DB: db}
-	router.POST("/instruments", h.POSTInstruments)         // добавление инструмента
-	router.PUT("/instruments/:id", h.PUTInstruments)       // изменение инструмента
-	router.DELETE("/instruments/:id", h.DELETEInstruments) // удаление инструмента
-	router.GET("/instruments", h.GETInstruments)           // получение всего инструмента
+	app := app.New(db)
+	routes.Setup(router, app)
 
-	router.POST("/register", h.POSTRegister) // авторизация пользователей
-	router.POST("/login", h.POSTLogin)
+	router.POST("/register", h.PostRegister) // авторизация пользователей
+	router.POST("/login", h.PostLogin)
 
-	router.POST("/cart", mw.AuthMiddleware(), h.POSTCart)         // добавление в корзину инструмента id
-	router.PUT("/cart", mw.AuthMiddleware(), h.PUTCart)           // изменение элемента корзины
-	router.DELETE("/cart/:id", mw.AuthMiddleware(), h.DELETECart) // удаление элемента корзины
-	router.GET("/cart", mw.AuthMiddleware(), h.GETCart)           // получение всей корзины
+	router.POST("/cart", mw.AuthMiddleware(), h.PostCart)           // добавление в корзину инструмента id
+	router.PUT("/cart", mw.AuthMiddleware(), h.PutCart)             // изменение элемента корзины
+	router.DELETE("/cart/:id", mw.AuthMiddleware(), h.DeleteCartId) // удаление элемента корзины
+	router.GET("/cart", mw.AuthMiddleware(), h.GetCart)             // получение всей корзины
 
 	router.POST("/orders", mw.AuthMiddleware()) // создание заказа пользователем
 	router.PUT("/orders/:id")

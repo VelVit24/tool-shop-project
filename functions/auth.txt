@@ -1,0 +1,34 @@
+Регистрация пользователей
+POST /register
+{
+    "email": "test@mail.com"
+    "password": "testpass"
+}
+201 Created
+{
+    "token": "...",
+    "role": "user"
+}
+400 Bad Request
+409 Conflict
+{
+    "error": "email already exists"
+}
+
+Логин пользователей
+POST /login
+{
+    "email": "test@mail.com"
+    "password": "testpass"
+}
+200 OK
+{
+    "token": "...",
+    "role": "user"
+}
+400 Bad Request
+409 Conflict
+{
+    "error": "email already exists"
+}
+
