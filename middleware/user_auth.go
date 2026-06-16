@@ -3,7 +3,6 @@ package middleware
 import (
 	"fmt"
 	"net/http"
-	"os"
 	"strings"
 	"time"
 
@@ -29,7 +28,7 @@ func AuthMiddleware() gin.HandlerFunc {
 				if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 					return nil, fmt.Errorf("unexpected signing method")
 				}
-				return []byte(os.Getenv("KEY_JWT")), nil
+				return []byte("key"), nil
 			},
 		)
 		if err != nil || !token.Valid {
@@ -37,7 +36,24 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 		id := token.Claims.(*service.Claims).Id
+		role := token.Claims.(*service.Claims).Role
 		c.Set("user_id", id)
+		c.Set("role", role)
+		c.Next()
+	}
+}
+
+func CheckAdminMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		role, ok := c.Get("role")
+		if !ok {
+			c.JSON(http.StatusUnauthorized, "invalid token")
+			return
+		}
+		if role != "admin" {
+			c.JSON(http.StatusForbidden, "forbidden")
+			return
+		}
 		c.Next()
 	}
 }

@@ -7,39 +7,58 @@ import (
 	"github.com/VelVit24/projext/models"
 )
 
-func InsertCart(db *sql.DB, id_user int, cart models.Cart) error {
-	_, err := db.Exec("insert into CartItems(id_user, id_instr, amount) values ($1, $2, $3)", id_user, cart.Id_instr, cart.Amount)
+type CartRepository struct {
+	db *sql.DB
+}
+
+func NewCartRepository(db *sql.DB) *CartRepository {
+	return &CartRepository{db: db}
+}
+
+func (r *CartRepository) InsertCart(id_user int, cart *models.Cart) error {
+	_, err := r.db.Exec("insert into cart_items(id_user, id_product, amount) values ($1, $2, $3)", id_user, cart.Id_product, cart.Amount)
 	return err
 }
 
-func UpdateCart(db *sql.DB, id_user int, cart models.Cart) error {
-	res, err := db.Exec("update CartItems set amount=$1 where id_user=$2 and id_instr=$3", cart.Amount, id_user, cart.Id_instr)
+func (r *CartRepository) UpdateCart(id_user int, cart *models.Cart) error {
+	res, err := r.db.Exec("update cart_items set amount=$1 where id_user=$2 and id_product=$3", cart.Amount, id_user, cart.Id_product)
 	if rows, _ := res.RowsAffected(); rows == 0 {
 		return sql.ErrNoRows
 	}
 	return err
 }
-func DeleteCart(db *sql.DB, id_user, id int) error {
-	res, err := db.Exec("delete from CartItems where id_user=$1 and id_instr=$2", id_user, id)
+func (r *CartRepository) DeleteCart(id_user, id int) error {
+	res, err := r.db.Exec("delete from cart_items where id_user=$1 and id_product=$2", id_user, id)
 	if rows, _ := res.RowsAffected(); rows == 0 {
 		return sql.ErrNoRows
 	}
 	return err
 }
 
-func SelectCart(db *sql.DB, id_user int) ([]models.Cart, error) {
-	rows, err := db.Query("select id_instr, amount from CartItems where id_user=$1", id_user)
+func (r *CartRepository) SelectCart(id_user int) ([]models.CartItems, error) {
+	rows, err := r.db.Query("select id_product, name, price, stock, image_url, amount from cart_items c left outer join products p on c.id_product = p.id where id_user=$1", id_user)
 	if err != nil {
 		return nil, err
 	}
-	carts := []models.Cart{}
+	items := []models.CartItems{}
 	for rows.Next() {
-		cart := models.Cart{}
-		err := rows.Scan(&cart.Id_instr, &cart.Amount)
+		item := models.CartItems{}
+		err := rows.Scan(&item.Id_product, &item.Name, &item.Price, &item.Stock, &item.Image_url, &item.Amount)
 		if err != nil {
 			log.Println(err)
 		}
-		carts = append(carts, cart)
+		if item.Amount > item.Stock {
+			item.IsInStock = false
+		} else {
+			item.IsInStock = true
+		}
+		items = append(items, item)
 	}
-	return carts, err
+	return items, err
+}
+
+func (r *CartRepository) SelectProductStock(id_prod int) (int, error) {
+	var stock int
+	err := r.db.QueryRow("select stock from products where id=$1", id_prod).Scan(&stock)
+	return stock, err
 }

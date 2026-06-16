@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
 	"strconv"
 
@@ -21,6 +22,7 @@ func (h *ProductHandler) PostAdminProduct(c *gin.Context) {
 	product := models.Product{}
 	if err := c.ShouldBindJSON(&product); err != nil {
 		c.JSON(http.StatusBadRequest, err)
+		log.Println("here")
 		return
 	}
 	err := h.service.CreateProduct(&product)
@@ -50,7 +52,7 @@ func (h *ProductHandler) PutAdminProduct(c *gin.Context) {
 	}
 	c.Status(200)
 }
-func (h *ProductHandler) DeleteAdminInstruments(c *gin.Context) {
+func (h *ProductHandler) DeleteAdminProducts(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err)
@@ -64,11 +66,27 @@ func (h *ProductHandler) DeleteAdminInstruments(c *gin.Context) {
 	c.Status(204)
 }
 
-func (h *ProductHandler) GetAdminInstruments(c *gin.Context) {
-	cats, err := h.service.GetProduct()
+func (h *ProductHandler) GetProducts(c *gin.Context) {
+	page := c.Query("page")
+	limit := c.Query("limit")
+	products, err := h.service.GetProduct(page, limit)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
-	c.JSON(200, cats)
+	c.JSON(200, products)
+}
+
+func (h *ProductHandler) GetProductsId(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
+	product, err := h.service.GetProductId(id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+	c.JSON(200, product)
 }

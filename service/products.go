@@ -1,6 +1,8 @@
 package service
 
 import (
+	"strconv"
+
 	"github.com/VelVit24/projext/models"
 	"github.com/VelVit24/projext/repository"
 )
@@ -25,7 +27,25 @@ func (s *ProductService) DeleteProduct(id int) error {
 	err := s.repo.DeleteProduct(id)
 	return err
 }
-func (s *ProductService) GetProduct() ([]models.Product, error) {
-	products, err := s.repo.SelectProduct()
-	return products, err
+func (s *ProductService) GetProduct(page, limit string) ([]models.Product, error) {
+	if page == "" || limit == "" {
+		products, err := s.repo.SelectProduct()
+		return products, err
+	} else {
+		p, err := strconv.Atoi(page)
+		if err != nil {
+			return nil, err
+		}
+		l, err := strconv.Atoi(limit)
+		if err != nil {
+			return nil, err
+		}
+		products, err := s.repo.SelectProductPagination(p, l)
+		return products, err
+	}
+
+}
+func (s *ProductService) GetProductId(id int) (models.Product, error) {
+	product, err := s.repo.SelectProductId(id)
+	return product, err
 }

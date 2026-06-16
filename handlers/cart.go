@@ -5,11 +5,19 @@ import (
 	"strconv"
 
 	"github.com/VelVit24/projext/models"
-	"github.com/VelVit24/projext/repository"
+	"github.com/VelVit24/projext/service"
 	"github.com/gin-gonic/gin"
 )
 
-func (h *Handler) POSTCart(c *gin.Context) {
+type CartHandler struct {
+	service *service.CartService
+}
+
+func NewCartHandler(service *service.CartService) *CartHandler {
+	return &CartHandler{service: service}
+}
+
+func (h *CartHandler) PostCart(c *gin.Context) {
 	id_user, ok := c.Get("user_id")
 	if ok != true {
 		c.JSON(http.StatusUnauthorized, "invalid token")
@@ -19,7 +27,7 @@ func (h *Handler) POSTCart(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, err)
 		return
 	}
-	err := repository.InsertCart(h.DB, id_user.(int), cart)
+	err := h.service.CreateCart(id_user.(int), &cart)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err)
 		return
@@ -27,7 +35,7 @@ func (h *Handler) POSTCart(c *gin.Context) {
 	c.Status(200)
 }
 
-func (h *Handler) PUTCart(c *gin.Context) {
+func (h *CartHandler) PutCart(c *gin.Context) {
 	id_user, ok := c.Get("user_id")
 	if ok != true {
 		c.JSON(http.StatusUnauthorized, "invalid token")
@@ -37,14 +45,14 @@ func (h *Handler) PUTCart(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, err)
 		return
 	}
-	err := repository.UpdateCart(h.DB, id_user.(int), cart)
+	err := h.service.UpdateCart(id_user.(int), &cart)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err)
+		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
 	c.Status(200)
 }
-func (h *Handler) DELETECart(c *gin.Context) {
+func (h *CartHandler) DeleteCart(c *gin.Context) {
 	id_user, ok := c.Get("user_id")
 	if ok != true {
 		c.JSON(http.StatusUnauthorized, "invalid token")
@@ -54,7 +62,7 @@ func (h *Handler) DELETECart(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, err)
 		return
 	}
-	err = repository.DeleteCart(h.DB, id_user.(int), id)
+	err = h.service.DeleteCart(id_user.(int), id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err)
 		return
@@ -62,12 +70,12 @@ func (h *Handler) DELETECart(c *gin.Context) {
 	c.Status(204)
 }
 
-func (h *Handler) GETCart(c *gin.Context) {
+func (h *CartHandler) GetCart(c *gin.Context) {
 	id_user, ok := c.Get("user_id")
 	if ok != true {
 		c.JSON(http.StatusUnauthorized, "invalid token")
 	}
-	carts, err := repository.SelectCart(h.DB, id_user.(int))
+	carts, err := h.service.GetCart(id_user.(int))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err)
 		return

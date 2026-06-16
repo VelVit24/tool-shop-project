@@ -4,30 +4,29 @@ import (
 	"database/sql"
 
 	"github.com/VelVit24/projext/models"
-	"github.com/VelVit24/projext/service"
 )
 
-func InsertUser(db *sql.DB, user models.User) (int, error) {
-	var id int
-	hash, err := service.HashPassword(user.Password)
-	if err != nil {
-		return 0, err
-	}
-	err = db.QueryRow("insert into Users(email, password) values ($1, $2) returning id", user.Email, hash).Scan(&id)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return 0, sql.ErrNoRows
-		}
-		return 0, err
-	}
-	return id, err
+type AuthRepository struct {
+	db *sql.DB
 }
 
-func CheckUser(db *sql.DB, user *models.User) error {
-	var hash string
-	err := db.QueryRow("select id, password from Users where email=$1", user.Email).Scan(&user.Id, &hash)
+func NewAuthRepository(db *sql.DB) *AuthRepository {
+	return &AuthRepository{db: db}
+}
+
+func (r *AuthRepository) InsertUser(user *models.User) error {
+	err := r.db.QueryRow("insert into users(email, password) values ($1, $2) returning id, role", user.Email, user.Password).Scan(&user.Id, &user.Role)
 	if err != nil {
 		return err
 	}
-	return service.CheckPassword(user.Password, hash)
+	return err
+}
+
+func (r *AuthRepository) CheckUser(user *models.User) (string, error) {
+	var hash string
+	err := r.db.QueryRow("select id, password, role from users where email=$1", user.Email).Scan(&user.Id, &hash, &user.Role)
+	if err != nil {
+		return "", err
+	}
+	return hash, nil
 }

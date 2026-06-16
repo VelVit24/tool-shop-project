@@ -5,17 +5,25 @@ import (
 	"strconv"
 
 	"github.com/VelVit24/projext/models"
-	"github.com/VelVit24/projext/repository"
+	"github.com/VelVit24/projext/service"
 	"github.com/gin-gonic/gin"
 )
 
-func (h *Handler) POSTCategories(c *gin.Context) {
+type CategoryHandler struct {
+	service *service.CategoryService
+}
+
+func NewCategoryHandler(service *service.CategoryService) *CategoryHandler {
+	return &CategoryHandler{service: service}
+}
+
+func (h *CategoryHandler) PostAdminCategories(c *gin.Context) {
 	cat := models.Category{}
 	if err := c.ShouldBindJSON(&cat); err != nil {
 		c.JSON(http.StatusBadRequest, err)
 		return
 	}
-	err := repository.InsertCategory(h.DB, &cat)
+	err := h.service.CreateCategory(&cat)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err)
 		return
@@ -23,7 +31,7 @@ func (h *Handler) POSTCategories(c *gin.Context) {
 	c.Status(200)
 }
 
-func (h *Handler) PUTCategories(c *gin.Context) {
+func (h *CategoryHandler) PutAdminCategories(c *gin.Context) {
 	cat := models.Category{}
 	if err := c.ShouldBindJSON(&cat); err != nil {
 		c.JSON(http.StatusBadRequest, err)
@@ -35,20 +43,20 @@ func (h *Handler) PUTCategories(c *gin.Context) {
 		return
 	}
 	cat.Id = id
-	err = repository.UpdateCategory(h.DB, &cat)
+	err = h.service.UpdateCategory(&cat)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
 	c.Status(200)
 }
-func (h *Handler) DELETECategories(c *gin.Context) {
+func (h *CategoryHandler) DeleteAdminCategories(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err)
 		return
 	}
-	err = repository.DeleteCategory(h.DB, id)
+	err = h.service.DeleteCategory(id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err)
 		return
@@ -56,8 +64,8 @@ func (h *Handler) DELETECategories(c *gin.Context) {
 	c.Status(204)
 }
 
-func (h *Handler) GETCategories(c *gin.Context) {
-	cats, err := repository.SelectCategories(h.DB)
+func (h *CategoryHandler) GetCategories(c *gin.Context) {
+	cats, err := h.service.GetCategory()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err)
 		return
