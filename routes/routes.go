@@ -12,6 +12,7 @@ func Setup(router *gin.Engine, app *app.App) {
 	AuthRoutes(router, app.AuthHandler)
 	CategoryRoutes(router, app.CategoryHandler)
 	CartRoutes(router, app.CartHandler)
+	OrderRoutes(router, app.OrderHandler)
 }
 
 func ProductRoutes(r *gin.Engine, h *handlers.ProductHandler) {
@@ -41,20 +42,19 @@ func CategoryRoutes(r *gin.Engine, h *handlers.CategoryHandler) {
 }
 
 func CartRoutes(r *gin.Engine, h *handlers.CartHandler) {
-	client := r.Group("", mw.AuthMiddleware())
-	{
-		client.POST("/cart", h.PostCart)         // добавление в корзину инструмента id
-		client.PUT("/cart", h.PutCart)           // изменение элемента корзины
-		client.DELETE("/cart/:id", h.DeleteCart) // удаление элемента корзины
-		client.GET("/cart", h.GetCart)           // получение всей корзины
-	}
+	r.POST("/cart", mw.AuthMiddleware(), h.PostCart)         // добавление в корзину инструмента id
+	r.PUT("/cart", mw.AuthMiddleware(), h.PutCart)           // изменение элемента корзины
+	r.DELETE("/cart/:id", mw.AuthMiddleware(), h.DeleteCart) // удаление элемента корзины
+	r.GET("/cart", mw.AuthMiddleware(), h.GetCart)           // получение всей корзины
 }
 
-/*
-
-	router.POST("/orders", mw.AuthMiddleware()) // создание заказа пользователем
-	router.PUT("/orders/:id")
-	router.DELETE("/orders/:id")
-	router.GET("/orders")
-
-*/
+func OrderRoutes(r *gin.Engine, h *handlers.OrderHandler) {
+	r.POST("/orders", mw.AuthMiddleware(), h.PostOrders) // создание заказа пользователем
+	r.GET("/orders", mw.AuthMiddleware(), h.GetOrders)
+	admin := r.Group("/admin", mw.AuthMiddleware(), mw.CheckAdminMiddleware())
+	{
+		admin.DELETE("/orders/:id", h.DeleteAdminOrders)
+		admin.PUT("/orders/:id", h.PutAdminOrders)
+		admin.GET("/orders", mw.AuthMiddleware(), mw.CheckAdminMiddleware(), h.GetAdminOrders)
+	}
+}

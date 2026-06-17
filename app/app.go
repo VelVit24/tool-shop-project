@@ -13,6 +13,7 @@ type App struct {
 	CategoryHandler *handlers.CategoryHandler
 	AuthHandler     *handlers.AuthHandler
 	CartHandler     *handlers.CartHandler
+	OrderHandler    *handlers.OrderHandler
 }
 
 func New(db *sql.DB) *App {
@@ -32,10 +33,15 @@ func New(db *sql.DB) *App {
 	authService := service.NewAuthService(authRepo)
 	authHandler := handlers.NewAuthHandler(authService)
 
+	orderRepo := repository.NewOrderRepository(db)
+	orderService := service.NewOrderService(orderRepo)
+	orderHandller := handlers.NewOrderHandler(orderService)
+
 	return &App{
 		ProductHandler:  productHandler,
 		CategoryHandler: categoryHandler,
 		CartHandler:     cartHandler,
 		AuthHandler:     authHandler,
+		OrderHandler:    orderHandller,
 	}
 }

@@ -45,3 +45,8 @@ type OrderItems struct {
 	Amount     int `json:"amount"`
 	Price      int `json:"price"`
 }
+type OrderView struct {
+	Order      Order       `json:"order"`
+	UserEmail  string      `json:"user_email"`
+	OrderItems []CartItems `json:"order_items"`
+}

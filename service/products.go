@@ -28,24 +28,31 @@ func (s *ProductService) DeleteProduct(id int) error {
 	return err
 }
 func (s *ProductService) GetProduct(page, limit string) ([]models.Product, error) {
-	if page == "" || limit == "" {
-		products, err := s.repo.SelectProduct()
-		return products, err
-	} else {
-		p, err := strconv.Atoi(page)
-		if err != nil {
-			return nil, err
-		}
-		l, err := strconv.Atoi(limit)
-		if err != nil {
-			return nil, err
-		}
-		products, err := s.repo.SelectProductPagination(p, l)
-		return products, err
+	p, l, err := PaginationParse(page, limit)
+	if err != nil {
+		return nil, err
 	}
+	products, err := s.repo.SelectProducts(p, l)
+	return products, err
 
 }
 func (s *ProductService) GetProductId(id int) (models.Product, error) {
 	product, err := s.repo.SelectProductId(id)
 	return product, err
+}
+
+func PaginationParse(page, limit string) (int, int, error) {
+	if page == "" || limit == "" {
+		return 1, 10, nil
+	} else {
+		p, err := strconv.Atoi(page)
+		if err != nil {
+			return 1, 10, err
+		}
+		l, err := strconv.Atoi(limit)
+		if err != nil {
+			return 1, 10, err
+		}
+		return p, l, nil
+	}
 }

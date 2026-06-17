@@ -35,24 +35,8 @@ func (r *ProductRepository) DeleteProduct(id int) error {
 	}
 	return err
 }
-func (r *ProductRepository) SelectProduct() ([]models.Product, error) {
-	rows, err := r.db.Query("select id, name, description, price, stock, image_url, id_category from products")
-	if err != nil {
-		return nil, err
-	}
-	products := []models.Product{}
-	for rows.Next() {
-		product := models.Product{}
-		err = rows.Scan(&product.Id, &product.Name, &product.Description, &product.Price, &product.Stock, &product.Image_url, &product.Id_category)
-		if err != nil {
-			log.Print(err)
-		}
-		products = append(products, product)
-	}
-	return products, nil
-}
 
-func (r *ProductRepository) SelectProductPagination(page, limit int) ([]models.Product, error) {
+func (r *ProductRepository) SelectProducts(page, limit int) ([]models.Product, error) {
 	rows, err := r.db.Query("select id, name, description, price, stock, image_url, id_category from products offset $1 limit $2", (page-1)*limit, limit)
 	if err != nil {
 		return nil, err

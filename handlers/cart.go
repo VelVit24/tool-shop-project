@@ -72,8 +72,9 @@ func (h *CartHandler) DeleteCart(c *gin.Context) {
 
 func (h *CartHandler) GetCart(c *gin.Context) {
 	id_user, ok := c.Get("user_id")
-	if ok != true {
+	if !ok {
 		c.JSON(http.StatusUnauthorized, "invalid token")
+		return
 	}
 	carts, err := h.service.GetCart(id_user.(int))
 	if err != nil {
