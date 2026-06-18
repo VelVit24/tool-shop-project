@@ -28,7 +28,7 @@ func (s *ProductService) DeleteProduct(id int) error {
 	err := s.repo.DeleteProduct(id)
 	return err
 }
-func (s *ProductService) GetProduct(filter dto.ProductFiler) ([]models.Product, error) {
+func (s *ProductService) GetProduct(filter dto.ProductFiler) (dto.ProductsResponce, error) {
 	if filter.Page <= 0 {
 		filter.Page = 1
 	}

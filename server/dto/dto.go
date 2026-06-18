@@ -2,6 +2,13 @@ package dto
 
 import "github.com/VelVit24/projext/models"
 
+type ProductsResponce struct {
+	Page     int              `json:"page"`
+	Limit    int              `json:"limit"`
+	Products []models.Product `json:"products"`
+	Total    int              `json:"total"`
+}
+
 type CartItems struct {
 	Id_product int    `json:"id_product"`
 	Name       string `json:"name"`

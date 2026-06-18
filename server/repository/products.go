@@ -38,8 +38,8 @@ func (r *ProductRepository) DeleteProduct(id int) error {
 	return err
 }
 
-func (r *ProductRepository) SelectProducts(filter dto.ProductFiler) ([]models.Product, error) {
-	query := "select id, name, description, price, stock, image_url, id_category from products where 1=1"
+func (r *ProductRepository) SelectProducts(filter dto.ProductFiler) (dto.ProductsResponce, error) {
+	query := " from products where 1=1"
 	args := []any{}
 	ind := 1
 	if filter.CategoryID != nil {
@@ -67,23 +67,33 @@ func (r *ProductRepository) SelectProducts(filter dto.ProductFiler) ([]models.Pr
 		args = append(args, search, search)
 		ind += 2
 	}
+
+	var total int
+	countQuery := "select count(*)" + query
+	err := r.db.QueryRow(countQuery, args...).Scan(&total)
+	if err != nil {
+		return dto.ProductsResponce{}, err
+	}
+
+	selectQuery := "select id, name, description, price, stock, image_url, id_category" + query
 	switch filter.Sort {
 	case "price_asc":
-		query += " order by price asc"
+		selectQuery += " order by price asc"
 	case "price_desc":
-		query += " order by price desc"
+		selectQuery += " order by price desc"
 	case "name_asc":
-		query += " order by name asc"
+		selectQuery += " order by name asc"
 	case "name_desc":
-		query += " order by name desc"
+		selectQuery += " order by name desc"
 	}
+
 	offset := (filter.Page - 1) * filter.Limit
-	query += fmt.Sprintf(" offset $%d limit $%d", ind, ind+1)
+	selectQuery += fmt.Sprintf(" offset $%d limit $%d", ind, ind+1)
 	args = append(args, offset, filter.Limit)
 
-	rows, err := r.db.Query(query, args...)
+	rows, err := r.db.Query(selectQuery, args...)
 	if err != nil {
-		return nil, err
+		return dto.ProductsResponce{}, err
 	}
 	products := []models.Product{}
 	for rows.Next() {
@@ -94,7 +104,13 @@ func (r *ProductRepository) SelectProducts(filter dto.ProductFiler) ([]models.Pr
 		}
 		products = append(products, product)
 	}
-	return products, nil
+	responce := dto.ProductsResponce{
+		Page:     filter.Page,
+		Limit:    filter.Limit,
+		Products: products,
+		Total:    total,
+	}
+	return responce, nil
 }
 
 func (r *ProductRepository) SelectProductId(id int) (models.Product, error) {

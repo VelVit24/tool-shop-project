@@ -98,7 +98,7 @@ func (h *ProductHandler) GetProducts(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
-	c.JSON(200, gin.H{"products": products, "page": filter.Page, "limit": filter.Limit, "total": len(products)})
+	c.JSON(200, products)
 }
 
 func (h *ProductHandler) GetProductsId(c *gin.Context) {

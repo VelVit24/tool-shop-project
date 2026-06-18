@@ -3,13 +3,13 @@ package models
 import "time"
 
 type Product struct {
-	Id          int    `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Price       int    `json:"price"`
-	Stock       int    `json:"stock"`
-	Image_url   string `json:"image_url"`
-	Id_category int    `json:"id_category"`
+	Id          int     `json:"id"`
+	Name        string  `json:"name"`
+	Description string  `json:"description"`
+	Price       float64 `json:"price"`
+	Stock       int     `json:"stock"`
+	Image_url   string  `json:"image_url"`
+	Id_category int     `json:"id_category"`
 }
 type User struct {
 	Id       int    `json:"id"`

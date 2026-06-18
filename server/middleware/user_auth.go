@@ -17,7 +17,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		auth := c.GetHeader("Authorization")
 		tokenString := strings.TrimPrefix(auth, "Bearer ")
 		if len(tokenString) == 0 {
-			c.JSON(http.StatusUnauthorized, "not logined")
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "not logined"})
 			return
 		}
 
@@ -32,7 +32,7 @@ func AuthMiddleware() gin.HandlerFunc {
 			},
 		)
 		if err != nil || !token.Valid {
-			c.JSON(http.StatusUnauthorized, "invalid token")
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})
 			return
 		}
 		id := token.Claims.(*service.Claims).Id
@@ -47,11 +47,11 @@ func CheckAdminMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		role, ok := c.Get("role")
 		if !ok {
-			c.JSON(http.StatusUnauthorized, "invalid token")
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})
 			return
 		}
 		if role != "admin" {
-			c.JSON(http.StatusForbidden, "forbidden")
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "forbidden"})
 			return
 		}
 		c.Next()
@@ -63,7 +63,7 @@ var apiLimiter = rate.NewLimiter(rate.Every(5*time.Second), 1)
 func RateLimitMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if !apiLimiter.Allow() {
-			c.JSON(http.StatusTooManyRequests, "Too Many Requests")
+			c.AbortWithStatusJSON(http.StatusTooManyRequests, gin.H{"error": "Too Many Requests"})
 			return
 		}
 		c.Next()
