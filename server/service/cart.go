@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 
+	"github.com/VelVit24/projext/dto"
 	"github.com/VelVit24/projext/models"
 	"github.com/VelVit24/projext/repository"
 )
@@ -41,7 +42,7 @@ func (s *CartService) DeleteCart(id_user int, id int) error {
 	err := s.repo.DeleteCart(id_user, id)
 	return err
 }
-func (s *CartService) GetCart(id_user int) ([]models.CartItems, error) {
+func (s *CartService) GetCart(id_user int) ([]dto.CartItems, error) {
 	carts, err := s.repo.SelectCart(id_user)
 	return carts, err
 }

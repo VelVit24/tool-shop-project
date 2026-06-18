@@ -3,6 +3,7 @@ package service
 import (
 	"strconv"
 
+	"github.com/VelVit24/projext/dto"
 	"github.com/VelVit24/projext/models"
 	"github.com/VelVit24/projext/repository"
 )
@@ -27,12 +28,14 @@ func (s *ProductService) DeleteProduct(id int) error {
 	err := s.repo.DeleteProduct(id)
 	return err
 }
-func (s *ProductService) GetProduct(page, limit string) ([]models.Product, error) {
-	p, l, err := PaginationParse(page, limit)
-	if err != nil {
-		return nil, err
+func (s *ProductService) GetProduct(filter dto.ProductFiler) ([]models.Product, error) {
+	if filter.Page <= 0 {
+		filter.Page = 1
 	}
-	products, err := s.repo.SelectProducts(p, l)
+	if filter.Limit <= 0 {
+		filter.Limit = 20
+	}
+	products, err := s.repo.SelectProducts(filter)
 	return products, err
 
 }

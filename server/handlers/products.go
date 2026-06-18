@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/VelVit24/projext/dto"
 	"github.com/VelVit24/projext/models"
 	"github.com/VelVit24/projext/service"
 	"github.com/gin-gonic/gin"
@@ -67,14 +68,37 @@ func (h *ProductHandler) DeleteAdminProducts(c *gin.Context) {
 }
 
 func (h *ProductHandler) GetProducts(c *gin.Context) {
-	page := c.Query("page")
-	limit := c.Query("limit")
-	products, err := h.service.GetProduct(page, limit)
+	filter := dto.ProductFiler{}
+	filter.Page, _ = strconv.Atoi(c.Query("page"))
+	filter.Limit, _ = strconv.Atoi(c.Query("limit"))
+	if value := c.Query("category"); value != "" {
+		id, _ := strconv.Atoi(value)
+		filter.CategoryID = &id
+	}
+	if value := c.Query("priceFrom"); value != "" {
+		price, _ := strconv.Atoi(value)
+		filter.PriceFrom = &price
+	}
+	if value := c.Query("priceTo"); value != "" {
+		price, _ := strconv.Atoi(value)
+		filter.PriceTo = &price
+	}
+	if value := c.Query("inStock"); value != "" {
+		stock, _ := strconv.ParseBool(value)
+		filter.InStock = &stock
+	}
+	if value := c.Query("search"); value != "" {
+		filter.Search = &value
+	}
+	if value := c.Query("sort"); value != "" {
+		filter.Sort = value
+	}
+	products, err := h.service.GetProduct(filter)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err)
+		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
-	c.JSON(200, products)
+	c.JSON(200, gin.H{"products": products, "page": filter.Page, "limit": filter.Limit, "total": len(products)})
 }
 
 func (h *ProductHandler) GetProductsId(c *gin.Context) {

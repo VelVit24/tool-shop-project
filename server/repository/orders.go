@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"log"
 
+	"github.com/VelVit24/projext/dto"
 	"github.com/VelVit24/projext/models"
 )
 
@@ -64,8 +65,8 @@ func (r *OrderRepository) DeleteOrder(id int) error {
 	return err
 }
 
-func (r *OrderRepository) SelectOrders(id_user, page, limit int, role string) ([]models.OrderView, error) {
-	orders := []models.OrderView{}
+func (r *OrderRepository) SelectOrders(id_user, page, limit int, role string) ([]dto.OrderView, error) {
+	orders := []dto.OrderView{}
 	var rows *sql.Rows
 	var err error
 	if role == "user" {
@@ -79,7 +80,7 @@ func (r *OrderRepository) SelectOrders(id_user, page, limit int, role string) ([
 		return nil, err
 	}
 	for rows.Next() {
-		order := models.OrderView{}
+		order := dto.OrderView{}
 		err := rows.Scan(&order.Order.Id, &order.Order.Status, &order.Order.Total, &order.Order.CreatedAt, &order.UserEmail)
 		if err != nil {
 			log.Println(err)
@@ -91,7 +92,7 @@ func (r *OrderRepository) SelectOrders(id_user, page, limit int, role string) ([
 			continue
 		}
 		for items.Next() {
-			item := models.CartItems{}
+			item := dto.CartItems{}
 			err := items.Scan(&item.Id_product, &item.Name, &item.Amount, &item.Price)
 			if err != nil {
 				log.Println(err)
@@ -103,14 +104,14 @@ func (r *OrderRepository) SelectOrders(id_user, page, limit int, role string) ([
 	return orders, nil
 }
 
-func (r *OrderRepository) SelectCart(id_user int) ([]models.CartItems, error) {
+func (r *OrderRepository) SelectCart(id_user int) ([]dto.CartItems, error) {
 	rows, err := r.db.Query("select id_product, name, price, stock, image_url, amount from cart_items c left outer join products p on c.id_product = p.id where id_user=$1", id_user)
 	if err != nil {
 		return nil, err
 	}
-	items := []models.CartItems{}
+	items := []dto.CartItems{}
 	for rows.Next() {
-		item := models.CartItems{}
+		item := dto.CartItems{}
 		err := rows.Scan(&item.Id_product, &item.Name, &item.Price, &item.Stock, &item.Image_url, &item.Amount)
 		if err != nil {
 			log.Println(err)

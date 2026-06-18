@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/VelVit24/projext/dto"
 	"github.com/VelVit24/projext/models"
 	"github.com/VelVit24/projext/repository"
 )
@@ -28,7 +29,7 @@ func (s *OrderService) DeleteOrder(id int) error {
 	return err
 }
 
-func (s *OrderService) GetOrders(id_user int, role string, page, limit string) ([]models.OrderView, error) {
+func (s *OrderService) GetOrders(id_user int, role string, page, limit string) ([]dto.OrderView, error) {
 	p, l, err := PaginationParse(page, limit)
 	if err != nil {
 		return nil, err

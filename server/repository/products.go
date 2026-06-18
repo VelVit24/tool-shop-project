@@ -2,8 +2,10 @@ package repository
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 
+	"github.com/VelVit24/projext/dto"
 	"github.com/VelVit24/projext/models"
 )
 
@@ -36,8 +38,50 @@ func (r *ProductRepository) DeleteProduct(id int) error {
 	return err
 }
 
-func (r *ProductRepository) SelectProducts(page, limit int) ([]models.Product, error) {
-	rows, err := r.db.Query("select id, name, description, price, stock, image_url, id_category from products offset $1 limit $2", (page-1)*limit, limit)
+func (r *ProductRepository) SelectProducts(filter dto.ProductFiler) ([]models.Product, error) {
+	query := "select id, name, description, price, stock, image_url, id_category from products where 1=1"
+	args := []any{}
+	ind := 1
+	if filter.CategoryID != nil {
+		query += fmt.Sprintf(" and id_category=$%d", ind)
+		args = append(args, *filter.CategoryID)
+		ind++
+	}
+	if filter.PriceFrom != nil {
+		query += fmt.Sprintf(" and price >= $%d", ind)
+		args = append(args, *filter.PriceFrom)
+		ind++
+	}
+	if filter.PriceTo != nil {
+		query += fmt.Sprintf(" and price <= $%d", ind)
+		args = append(args, *filter.PriceTo)
+		ind++
+	}
+	if filter.InStock != nil {
+		query += " and stock >= 0"
+	}
+
+	if filter.Search != nil {
+		query += fmt.Sprintf(" and name ilike $%d or description ilike $%d", ind, ind+1)
+		search := "%" + *filter.Search + "%"
+		args = append(args, search, search)
+		ind += 2
+	}
+	switch filter.Sort {
+	case "price_asc":
+		query += " order by price asc"
+	case "price_desc":
+		query += " order by price desc"
+	case "name_asc":
+		query += " order by name asc"
+	case "name_desc":
+		query += " order by name desc"
+	}
+	offset := (filter.Page - 1) * filter.Limit
+	query += fmt.Sprintf(" offset $%d limit $%d", ind, ind+1)
+	args = append(args, offset, filter.Limit)
+
+	rows, err := r.db.Query(query, args...)
 	if err != nil {
 		return nil, err
 	}
