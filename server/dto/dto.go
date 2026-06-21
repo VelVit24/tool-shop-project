@@ -23,3 +23,7 @@ type OrderView struct {
 	UserEmail  string       `json:"user_email"`
 	OrderItems []CartItems  `json:"order_items"`
 }
+
+type ErrorResponce struct {
+	Error string `json:"error"`
+}

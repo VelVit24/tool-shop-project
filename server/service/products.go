@@ -6,6 +6,7 @@ import (
 	"github.com/VelVit24/projext/dto"
 	"github.com/VelVit24/projext/models"
 	"github.com/VelVit24/projext/repository"
+	"github.com/gosimple/slug"
 )
 
 type ProductService struct {
@@ -17,6 +18,7 @@ func NewProductService(repo *repository.ProductRepository) *ProductService {
 }
 
 func (s *ProductService) CreateProduct(product *models.Product) error {
+	product.Slug = slug.Make(product.Name)
 	err := s.repo.InsertProduct(product)
 	return err
 }

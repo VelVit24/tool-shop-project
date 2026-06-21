@@ -18,8 +18,8 @@ func NewProductRepository(db *sql.DB) *ProductRepository {
 }
 
 func (r *ProductRepository) InsertProduct(prod *models.Product) error {
-	err := r.db.QueryRow("insert into products(name, description, price, stock, image_url, id_category) values ($1, $2, $3, $4, $5, $6) returning id",
-		prod.Name, prod.Description, prod.Price, prod.Stock, prod.Image_url, prod.Id_category).Scan(&prod.Id)
+	err := r.db.QueryRow("insert into products(name, description, price, stock, image_url, id_category, slug) values ($1, $2, $3, $4, $5, $6, $7) returning id",
+		prod.Name, prod.Description, prod.Price, prod.Stock, prod.Image_url, prod.Id_category, prod.Slug).Scan(&prod.Id)
 	return err
 }
 func (r *ProductRepository) UpdateProduct(prod *models.Product) error {
@@ -42,9 +42,11 @@ func (r *ProductRepository) SelectProducts(filter dto.ProductFiler) (dto.Product
 	query := " from products where 1=1"
 	args := []any{}
 	ind := 1
-	if filter.CategoryID != nil {
+	if filter.CategorySlug != nil {
+		category_id := 0
+		r.db.QueryRow("select id from categories where slug=$1", filter.CategorySlug).Scan(&category_id)
 		query += fmt.Sprintf(" and id_category=$%d", ind)
-		args = append(args, *filter.CategoryID)
+		args = append(args, category_id)
 		ind++
 	}
 	if filter.PriceFrom != nil {

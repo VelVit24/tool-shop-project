@@ -34,14 +34,14 @@ func (r *CategoryRepository) DeleteCategory(id int) error {
 	return err
 }
 func (r *CategoryRepository) SelectCategories() ([]models.Category, error) {
-	rows, err := r.db.Query("select id, name from categories")
+	rows, err := r.db.Query("select id, name, slug from categories")
 	if err != nil {
 		return nil, err
 	}
 	cats := []models.Category{}
 	for rows.Next() {
 		cat := models.Category{}
-		err = rows.Scan(&cat.Id, &cat.Name)
+		err = rows.Scan(&cat.Id, &cat.Name, &cat.Slug)
 		if err != nil {
 			log.Print(err)
 		}

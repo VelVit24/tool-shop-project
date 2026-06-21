@@ -5,7 +5,7 @@ export interface Product {
     price: number
     stock: number
     image_url: string
-    id_category: number
+    category: string
 }
 export interface ProductResponce {
     limit: number

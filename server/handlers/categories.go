@@ -7,6 +7,7 @@ import (
 	"github.com/VelVit24/projext/models"
 	"github.com/VelVit24/projext/service"
 	"github.com/gin-gonic/gin"
+	"github.com/lib/pq"
 )
 
 type CategoryHandler struct {
@@ -25,6 +26,12 @@ func (h *CategoryHandler) PostAdminCategories(c *gin.Context) {
 	}
 	err := h.service.CreateCategory(&cat)
 	if err != nil {
+		if pqErr, ok := err.(*pq.Error); ok {
+			if pqErr.Code == "23505" {
+				c.JSON(http.StatusBadRequest, gin.H{"error": "name shoud be unique"})
+				return
+			}
+		}
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
@@ -45,6 +52,12 @@ func (h *CategoryHandler) PutAdminCategories(c *gin.Context) {
 	cat.Id = id
 	err = h.service.UpdateCategory(&cat)
 	if err != nil {
+		if pqErr, ok := err.(*pq.Error); ok {
+			if pqErr.Code == "23505" {
+				c.JSON(http.StatusBadRequest, gin.H{"error": "name shoud be unique"})
+				return
+			}
+		}
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}

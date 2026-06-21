@@ -13,8 +13,7 @@ export default function Products() {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const { category } = useParams<{ category: string }>();
-  const parsedCategory = category ? Number(category) : null;
+  const { category_slug } = useParams<{ category_slug: string }>();
 
   // логика страниц
   const limit = 12;
@@ -52,7 +51,8 @@ export default function Products() {
         setLoading(true);
         setError('');
         setProducts([]);
-        const data = await getProducts(page, limit, parsedCategory);
+        console.log(category_slug);
+        const data = await getProducts(page, limit, category_slug);
         setProducts(data.products);
         setTotal(data.total);
       } catch (error) {
@@ -62,7 +62,7 @@ export default function Products() {
       }
     }
     fetchProducts();
-  }, [page, parsedCategory]);
+  }, [page, category_slug]);
   if (loading) {
     return <div>Загрузка...</div>;
   }

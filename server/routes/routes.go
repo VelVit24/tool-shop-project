@@ -29,6 +29,8 @@ func ProductRoutes(r *gin.Engine, h *handlers.ProductHandler) {
 func AuthRoutes(r *gin.Engine, h *handlers.AuthHandler) {
 	r.POST("/register", h.PostRegister) // авторизация пользователей
 	r.POST("/login", h.PostLogin)
+	r.GET("/check/email", h.GetCheckEmail) // проверка уникальности email
+	r.GET("/check/phone", h.GetCheckPhone) // проверка уникальности phone
 }
 
 func CategoryRoutes(r *gin.Engine, h *handlers.CategoryHandler) {

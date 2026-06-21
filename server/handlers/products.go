@@ -9,6 +9,7 @@ import (
 	"github.com/VelVit24/projext/models"
 	"github.com/VelVit24/projext/service"
 	"github.com/gin-gonic/gin"
+	"github.com/lib/pq"
 )
 
 type ProductHandler struct {
@@ -28,7 +29,13 @@ func (h *ProductHandler) PostAdminProduct(c *gin.Context) {
 	}
 	err := h.service.CreateProduct(&product)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err)
+		if pqErr, ok := err.(*pq.Error); ok {
+			if pqErr.Code == "23505" {
+				c.JSON(http.StatusBadRequest, gin.H{"error": "name shoud be unique"})
+				return
+			}
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	c.Status(200)
@@ -48,6 +55,12 @@ func (h *ProductHandler) PutAdminProduct(c *gin.Context) {
 	instr.Id = id
 	err = h.service.UpdateProduct(&instr)
 	if err != nil {
+		if pqErr, ok := err.(*pq.Error); ok {
+			if pqErr.Code == "23505" {
+				c.JSON(http.StatusBadRequest, gin.H{"error": "name shoud be unique"})
+				return
+			}
+		}
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
@@ -72,8 +85,7 @@ func (h *ProductHandler) GetProducts(c *gin.Context) {
 	filter.Page, _ = strconv.Atoi(c.Query("page"))
 	filter.Limit, _ = strconv.Atoi(c.Query("limit"))
 	if value := c.Query("category"); value != "" {
-		id, _ := strconv.Atoi(value)
-		filter.CategoryID = &id
+		filter.CategorySlug = &value
 	}
 	if value := c.Query("priceFrom"); value != "" {
 		price, _ := strconv.Atoi(value)

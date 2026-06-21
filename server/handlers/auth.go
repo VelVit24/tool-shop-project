@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 
+	"github.com/VelVit24/projext/dto"
 	"github.com/VelVit24/projext/models"
 	"github.com/VelVit24/projext/service"
 	"github.com/gin-gonic/gin"
@@ -29,7 +30,7 @@ func (h *AuthHandler) PostLogin(c *gin.Context) {
 	}
 	token, err := service.GenToken(user.Id, user.Role)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, "ошибка генерации токена")
+		c.JSON(http.StatusInternalServerError, dto.ErrorResponce{Error: "token generation error"})
 		return
 	}
 	c.JSON(200, gin.H{
@@ -47,16 +48,35 @@ func (h *AuthHandler) PostRegister(c *gin.Context) {
 	}
 	err := h.service.CreateUser(&user)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err)
+		c.JSON(http.StatusBadRequest, dto.ErrorResponce{Error: err.Error()})
 		return
 	}
 	token, err := service.GenToken(user.Id, user.Role)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, "ошибка генерации токена")
+		c.JSON(http.StatusInternalServerError, dto.ErrorResponce{Error: "token generation error"})
 		return
 	}
 	c.JSON(200, gin.H{
 		"token": token,
 		"role":  user.Role,
 	})
+}
+
+func (h *AuthHandler) GetCheckEmail(c *gin.Context) {
+	email := c.Query("email")
+	err := h.service.CheckEmail(email)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, dto.ErrorResponce{Error: err.Error()})
+		return
+	}
+	c.Status(200)
+}
+func (h *AuthHandler) GetCheckPhone(c *gin.Context) {
+	phone := c.Query("phone")
+	err := h.service.CheckPhoneUnique(phone)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, dto.ErrorResponce{Error: err.Error()})
+		return
+	}
+	c.Status(200)
 }

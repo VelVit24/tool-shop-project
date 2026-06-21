@@ -3,6 +3,7 @@ package service
 import (
 	"github.com/VelVit24/projext/models"
 	"github.com/VelVit24/projext/repository"
+	"github.com/gosimple/slug"
 )
 
 type CategoryService struct {
@@ -14,6 +15,7 @@ func NewCategoryService(repo *repository.CategoryRepository) *CategoryService {
 }
 
 func (s *CategoryService) CreateCategory(category *models.Category) error {
+	category.Slug = slug.Make(category.Name)
 	err := s.repo.InsertCategory(category)
 	return err
 }

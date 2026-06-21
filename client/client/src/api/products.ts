@@ -3,7 +3,7 @@ import type { ProductResponce } from "../types/product";
 export async function getProducts(
     page: number, 
     limit: number,
-    category?: number | null
+    category?: string | null
 ) {
     const response = await api.get<ProductResponce>("/products", {
         params: {
