@@ -3,6 +3,7 @@ import Products from './pages/Products';
 import Layout from './components/Layout';
 import Index from './pages/Index';
 import Auth from './pages/auth/Auth';
+import Cart from './pages/Cart';
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
           <Route path="/products" element={<Products />} />
           <Route path="/category/:category_slug/" element={<Products />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/cart" element={<Cart />} />
         </Route>
       </Routes>
     </BrowserRouter>
