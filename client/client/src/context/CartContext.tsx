@@ -1,7 +1,13 @@
 import type { Product } from '../types/product';
 import { createContext, useState, useEffect, useContext } from 'react';
 import { useAuth } from './AuthContext';
-import { getCart, addCartItem, removeCartItem } from '../api/cart';
+import {
+  getCart,
+  addCartItem,
+  removeCartItem,
+  changeCartItemQuantity,
+  clearCartItems,
+} from '../api/cart';
 
 type CartContextType = {
   cart: CartItem[];
@@ -9,8 +15,18 @@ type CartContextType = {
   removeFromCart: (id: number) => void;
   changeQuantity: (id: number, quantity: number) => void;
   clearCart: () => void;
+  getCartItem: (productId: number) => CartItem | undefined;
 };
-export type CartItem = Product & { quantity: number };
+
+export type CartItem = {
+  id_product: number;
+  name: string;
+  price: number;
+  stock: number;
+  image_count: number;
+  amount: number;
+  is_in_stock: boolean;
+};
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
@@ -35,56 +51,107 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           console.error('Ошибка при загрузке корзины', error);
         }
       } else {
-        loadCart();
+        const saved = localStorage.getItem('cart');
+        setCart(saved ? JSON.parse(saved) : []);
       }
     }
     fetchCart();
   }, [token]);
 
-  function loadCart() {
-    const saved = localStorage.getItem('cart');
-    if (saved) {
-      setCart(JSON.parse(saved));
-    }
-  }
-
-  function addToCart(product: Product) {
+  async function addToCart(product: Product) {
     if (token) {
-      addCartItem(product.id, 1).then(() => {
-        getCart().then((res) => setCart(res.data.items));
-      });
+      await addCartItem(product.id, 1);
+
+      const data = await getCart();
+      setCart(data);
     } else {
-      setCart((prevCart) => {
-        const exists = prevCart.find((item) => item.id === product.id);
+      setCart((prev) => {
+        const exists = prev.find((item) => item.id_product === product.id);
         if (exists) {
-          return prevCart.map((item) =>
-            item.id === product.id
-              ? { ...item, quantity: item.quantity + 1 }
+          return prev.map((item) =>
+            item.id_product === product.id
+              ? { ...item, amount: item.amount + 1 }
               : item,
           );
         } else {
-          return [...prevCart, { ...product, quantity: 1 }];
+          return [
+            ...prev,
+            {
+              id_product: product.id,
+              name: product.name,
+              price: product.price,
+              stock: product.stock,
+              image_count: product.image_count,
+              amount: 1,
+              is_in_stock: product.stock > 0,
+            },
+          ];
         }
       });
     }
   }
 
-  function changeQuantity(id: number, quantity: number) {
-    setCart((prevCart) =>
-      prevCart.map((item) =>
-        item.id === id
-          ? { ...item, quantity: quantity < 1 ? 1 : quantity }
-          : item,
-      ),
-    );
+  async function changeQuantity(id: number, quantity: number) {
+    quantity = normalizeQuantity(quantity);
+    if (token) {
+      try {
+        if (quantity < 1) {
+          return;
+        }
+        await changeCartItemQuantity(id, quantity);
+        const data = await getCart();
+        setCart(data);
+      } catch (error) {
+        console.error(
+          'Ошибка при изменении количества товара в корзине',
+          error,
+        );
+      }
+    } else {
+      setCart((prevCart) =>
+        prevCart.map((item) =>
+          item.id_product === id ? { ...item, amount: quantity } : item,
+        ),
+      );
+    }
+  }
+  function normalizeQuantity(q: number) {
+    if (q < 1) return 1;
+    return Math.floor(q);
   }
 
-  function removeFromCart(id: number) {
-    setCart((prevCart) => prevCart.filter((product) => product.id !== id));
+  async function removeFromCart(id: number) {
+    if (token) {
+      try {
+        await removeCartItem(id);
+        const data = await getCart();
+        setCart(data);
+      } catch (error) {
+        console.error('Ошибка при удалении товара из корзины', error);
+      }
+    } else {
+      setCart((prevCart) =>
+        prevCart.filter((product) => product.id_product !== id),
+      );
+    }
   }
 
-  function clearCart() {
-    setCart([]);
+  async function clearCart() {
+    if (token) {
+      console.log('ПОЧЕМУ ЗДЕСЬ ТОКЕН:', token);
+      try {
+        await clearCartItems();
+        setCart([]);
+      } catch (error) {
+        console.error('Ошибка при очистке корзины', error);
+      }
+    } else {
+      localStorage.removeItem('cart');
+      setCart([]);
+    }
+  }
+  function getCartItem(productId: number): CartItem | undefined {
+    return cart.find((item) => item.id_product === productId);
   }
 
   return (
@@ -95,6 +162,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         removeFromCart,
         changeQuantity,
         clearCart,
+        getCartItem,
       }}
     >
       {children}

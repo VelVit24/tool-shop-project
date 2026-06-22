@@ -11,6 +11,7 @@ import type { Category } from '../types/category';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
+import Container from './Container';
 
 export default function Header() {
   const navigate = useNavigate();
@@ -66,12 +67,12 @@ export default function Header() {
             <TextAlignJustify className="w-5 h-5" /> Каталог
           </button>
           {catalogOpen && (
-            <div className="absolute top-16 left-0 w-full bg-white border-t shadow-md z-10">
+            <div className="absolute top-20 justify-center bg-white rounded-md shadow-lg border border-gray-200">
               <ul>
                 {categories.map((category) => (
                   <li
                     key={category.id}
-                    className="p-2 hover:bg-gray-100 cursor-pointer"
+                    className="p-2 border-t border-gray-200 hover:bg-gray-100 cursor-pointer"
                     onClick={() => {
                       navigate(`/category/${category.slug}/`);
                       setCatalogOpen(false);

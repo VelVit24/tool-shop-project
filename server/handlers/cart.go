@@ -21,6 +21,7 @@ func (h *CartHandler) PostCart(c *gin.Context) {
 	id_user, ok := c.Get("user_id")
 	if ok != true {
 		c.JSON(http.StatusUnauthorized, "invalid token")
+		return
 	}
 	cart := models.Cart{}
 	if err := c.ShouldBindJSON(&cart); err != nil {
@@ -39,13 +40,19 @@ func (h *CartHandler) PutCart(c *gin.Context) {
 	id_user, ok := c.Get("user_id")
 	if ok != true {
 		c.JSON(http.StatusUnauthorized, "invalid token")
+		return
 	}
 	cart := models.Cart{}
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
 	if err := c.ShouldBindJSON(&cart); err != nil {
 		c.JSON(http.StatusBadRequest, err)
 		return
 	}
-	err := h.service.UpdateCart(id_user.(int), &cart)
+	err = h.service.UpdateCart(id_user.(int), id, &cart)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
@@ -56,6 +63,7 @@ func (h *CartHandler) DeleteCart(c *gin.Context) {
 	id_user, ok := c.Get("user_id")
 	if ok != true {
 		c.JSON(http.StatusUnauthorized, "invalid token")
+		return
 	}
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {

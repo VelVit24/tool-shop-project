@@ -1,12 +1,17 @@
 package service
 
 import (
+	"image"
+	"mime/multipart"
+	"os"
 	"strconv"
 
 	"github.com/VelVit24/projext/dto"
 	"github.com/VelVit24/projext/models"
 	"github.com/VelVit24/projext/repository"
+	"github.com/chai2010/webp"
 	"github.com/gosimple/slug"
+	"github.com/nfnt/resize"
 )
 
 type ProductService struct {
@@ -41,8 +46,8 @@ func (s *ProductService) GetProduct(filter dto.ProductFiler) (dto.ProductsRespon
 	return products, err
 
 }
-func (s *ProductService) GetProductId(id int) (models.Product, error) {
-	product, err := s.repo.SelectProductId(id)
+func (s *ProductService) GetProductSlug(slug string) (models.Product, error) {
+	product, err := s.repo.SelectProductSlug(slug)
 	return product, err
 }
 
@@ -60,4 +65,37 @@ func PaginationParse(page, limit string) (int, int, error) {
 		}
 		return p, l, nil
 	}
+}
+
+func (s *ProductService) GetProductImage(slug string) {
+
+}
+
+func (s *ProductService) SetProductImages(slug string, files *[]*multipart.FileHeader) error {
+	err := s.repo.AddProductImageCount(slug, len(*files))
+	if err != nil {
+		return err
+	}
+	for i, file := range *files {
+		src, err := file.Open()
+		if err != nil {
+			return err
+		}
+		defer src.Close()
+		img, _, err := image.Decode(src)
+		if err != nil {
+			return err
+		}
+		pathSmall := "static/images/products/" + slug + "/small/"
+		pathBig := "static/images/products/" + slug + "/big/"
+		_ = os.MkdirAll(pathSmall, os.ModePerm)
+		_ = os.MkdirAll(pathBig, os.ModePerm)
+		out, _ := os.Create(pathSmall + strconv.Itoa(i+1) + ".webp")
+		resized := resize.Resize(400, 0, img, resize.Lanczos3)
+		webp.Encode(out, resized, &webp.Options{Quality: 80})
+		out, _ = os.Create(pathBig + strconv.Itoa(i+1) + ".webp")
+		webp.Encode(out, img, &webp.Options{Quality: 80})
+	}
+	return nil
+
 }

@@ -12,10 +12,30 @@ import (
 )
 
 func main() {
+	config := cors.Config{
+		AllowOrigins: []string{
+			"http://localhost:5173",
+		},
+
+		AllowMethods: []string{
+			"GET",
+			"POST",
+			"PUT",
+			"PATCH",
+			"DELETE",
+			"OPTIONS",
+		},
+
+		AllowHeaders: []string{
+			"Content-Type",
+			"Authorization",
+		},
+	}
 	router := gin.Default()
-	router.Use(cors.Default())
+	router.Use(cors.New(config))
 	db := database.ConnDB()
 	defer db.Close()
+	router.Static("/static", "./static")
 	app := app.New(db)
 	routes.Setup(router, app)
 	router.Run(":8080")

@@ -22,20 +22,20 @@ func (s *CartService) CreateCart(id_user int, cart *models.Cart) error {
 		return err
 	}
 	if cart.Amount > stock {
-		return errors.New("Not enough stock")
+		return errors.New("not enough stock")
 	}
 	err = s.repo.InsertCart(id_user, cart)
 	return err
 }
-func (s *CartService) UpdateCart(id_user int, cart *models.Cart) error {
+func (s *CartService) UpdateCart(id_user int, id int, cart *models.Cart) error {
 	stock, err := s.repo.SelectProductStock(cart.Id_product)
 	if err != nil {
 		return err
 	}
 	if cart.Amount > stock {
-		return errors.New("Not enough stock")
+		return errors.New("not enough stock")
 	}
-	err = s.repo.UpdateCart(id_user, cart)
+	err = s.repo.UpdateCart(id_user, id, cart)
 	return err
 }
 func (s *CartService) DeleteCart(id_user int, id int) error {

@@ -14,3 +14,9 @@ export async function getProducts(
     });
     return response.data;
 }
+export async function getProductImage(slug: string, imageNumber: number) {
+    const response = await api.get(`/products/${slug}/images/${imageNumber}`, {
+        responseType: 'blob',
+    });
+    return response.data;
+}

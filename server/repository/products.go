@@ -18,13 +18,13 @@ func NewProductRepository(db *sql.DB) *ProductRepository {
 }
 
 func (r *ProductRepository) InsertProduct(prod *models.Product) error {
-	err := r.db.QueryRow("insert into products(name, description, price, stock, image_url, id_category, slug) values ($1, $2, $3, $4, $5, $6, $7) returning id",
-		prod.Name, prod.Description, prod.Price, prod.Stock, prod.Image_url, prod.Id_category, prod.Slug).Scan(&prod.Id)
+	err := r.db.QueryRow("insert into products(name, description, price, stock, image_count, id_category, slug) values ($1, $2, $3, $4, $5, $6, $7) returning id",
+		prod.Name, prod.Description, prod.Price, prod.Stock, prod.Image_count, prod.Id_category, prod.Slug).Scan(&prod.Id)
 	return err
 }
 func (r *ProductRepository) UpdateProduct(prod *models.Product) error {
-	res, err := r.db.Exec("update products set name=$1, description=$2, price=$3, stock=$4, image_url=$5, id_category=$6 where id=$7",
-		prod.Name, prod.Description, prod.Price, prod.Stock, prod.Image_url, prod.Id_category, prod.Id)
+	res, err := r.db.Exec("update products set name=$1, description=$2, price=$3, stock=$4, image_count=$5, id_category=$6 where id=$7",
+		prod.Name, prod.Description, prod.Price, prod.Stock, prod.Image_count, prod.Id_category, prod.Id)
 	if rows, _ := res.RowsAffected(); rows == 0 {
 		return sql.ErrNoRows
 	}
@@ -77,7 +77,7 @@ func (r *ProductRepository) SelectProducts(filter dto.ProductFiler) (dto.Product
 		return dto.ProductsResponce{}, err
 	}
 
-	selectQuery := "select id, name, description, price, stock, image_url, id_category" + query
+	selectQuery := "select id, name, description, price, stock, image_count, id_category, slug" + query
 	switch filter.Sort {
 	case "price_asc":
 		selectQuery += " order by price asc"
@@ -100,7 +100,7 @@ func (r *ProductRepository) SelectProducts(filter dto.ProductFiler) (dto.Product
 	products := []models.Product{}
 	for rows.Next() {
 		product := models.Product{}
-		err = rows.Scan(&product.Id, &product.Name, &product.Description, &product.Price, &product.Stock, &product.Image_url, &product.Id_category)
+		err = rows.Scan(&product.Id, &product.Name, &product.Description, &product.Price, &product.Stock, &product.Image_count, &product.Id_category, &product.Slug)
 		if err != nil {
 			log.Print(err)
 		}
@@ -115,9 +115,17 @@ func (r *ProductRepository) SelectProducts(filter dto.ProductFiler) (dto.Product
 	return responce, nil
 }
 
-func (r *ProductRepository) SelectProductId(id int) (models.Product, error) {
+func (r *ProductRepository) SelectProductSlug(slug string) (models.Product, error) {
 	product := models.Product{}
-	err := r.db.QueryRow("select id, name, description, price, stock, image_url, id_category from products where id=$1", id).
-		Scan(&product.Id, &product.Name, &product.Description, &product.Price, &product.Stock, &product.Image_url, &product.Id_category)
+	err := r.db.QueryRow("select id, name, description, price, stock, image_count, id_category, slug from products where slug=$1", slug).
+		Scan(&product.Id, &product.Name, &product.Description, &product.Price, &product.Stock, &product.Image_count, &product.Id_category, &product.Slug)
 	return product, err
+}
+
+func (r *ProductRepository) AddProductImageCount(slug string, count int) error {
+	res, err := r.db.Exec("update products set image_count=image_count+$1 where slug=$2", count, slug)
+	if rows, _ := res.RowsAffected(); rows == 0 {
+		return sql.ErrNoRows
+	}
+	return err
 }

@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	_ "image/jpeg"
+	_ "image/png"
 	"log"
 	"net/http"
 	"strconv"
@@ -113,16 +115,46 @@ func (h *ProductHandler) GetProducts(c *gin.Context) {
 	c.JSON(200, products)
 }
 
-func (h *ProductHandler) GetProductsId(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, err)
+func (h *ProductHandler) GetProductsSlug(c *gin.Context) {
+	slug := c.Param("slug")
+	if slug == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "slug is required"})
 		return
 	}
-	product, err := h.service.GetProductId(id)
+	product, err := h.service.GetProductSlug(slug)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
 	c.JSON(200, product)
+}
+
+func (h *ProductHandler) PostProductImage(c *gin.Context) {
+	slug := c.Param("slug")
+	form, err := c.MultipartForm()
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to get multipart form"})
+		return
+	}
+	files := form.File["images"]
+	err = h.service.SetProductImages(slug, &files)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save images"})
+		return
+	}
+	c.Status(200)
+}
+
+func (h *ProductHandler) GetProductImage(c *gin.Context) {
+	slug := c.Param("slug")
+	ind := c.Param("ind")
+	size := c.Query("size")
+	path := "static/images/products/" + slug
+	if size == "small" {
+		path += "/small/"
+	} else {
+		path += "/big/"
+	}
+	path += ind + ".webp"
+	c.File(path)
 }

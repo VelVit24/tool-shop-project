@@ -9,7 +9,7 @@ type Product struct {
 	Description string  `json:"description"`
 	Price       float64 `json:"price"`
 	Stock       int     `json:"stock"`
-	Image_url   string  `json:"image_url"`
+	Image_count int     `json:"image_count"`
 	Id_category int     `json:"id_category"`
 }
 type User struct {

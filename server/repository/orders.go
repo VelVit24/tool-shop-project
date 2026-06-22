@@ -105,14 +105,14 @@ func (r *OrderRepository) SelectOrders(id_user, page, limit int, role string) ([
 }
 
 func (r *OrderRepository) SelectCart(id_user int) ([]dto.CartItems, error) {
-	rows, err := r.db.Query("select id_product, name, price, stock, image_url, amount from cart_items c left outer join products p on c.id_product = p.id where id_user=$1", id_user)
+	rows, err := r.db.Query("select id_product, name, price, stock, image_count, amount from cart_items c left outer join products p on c.id_product = p.id where id_user=$1", id_user)
 	if err != nil {
 		return nil, err
 	}
 	items := []dto.CartItems{}
 	for rows.Next() {
 		item := dto.CartItems{}
-		err := rows.Scan(&item.Id_product, &item.Name, &item.Price, &item.Stock, &item.Image_url, &item.Amount)
+		err := rows.Scan(&item.Id_product, &item.Name, &item.Price, &item.Stock, &item.Image_count, &item.Amount)
 		if err != nil {
 			log.Println(err)
 		}

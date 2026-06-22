@@ -4,8 +4,9 @@ export interface Product {
     description: string
     price: number
     stock: number
-    image_url: string
+    image_count: number
     category: string
+    slug: string
 }
 export interface ProductResponce {
     limit: number

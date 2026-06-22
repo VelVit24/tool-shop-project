@@ -5,22 +5,22 @@ export async function getCart() {
   return response.data;
 }
 
-export async function addCartItem(productId: number, quantity: number) {
-  const response = await api.post('/cart', { productId, quantity });
+export async function addCartItem(id_product: number, amount: number) {
+  const response = await api.post('/cart', { id_product, amount });
   return response.data;
 }
 
-export async function removeCartItem(productId: number) {
-  const response = await api.delete(`/cart/${productId}`);
+export async function removeCartItem(id_product: number) {
+  const response = await api.delete(`/cart/${id_product}`);
   return response.data;
 }
 
-export async function changeCartItemQuantity(productId: number, quantity: number) {
-  const response = await api.put(`/cart`, { productId, quantity });
+export async function changeCartItemQuantity(id_product: number, amount: number) {
+  const response = await api.put(`/cart`, { id_product, amount });
   return response.data;
 }
 
-export async function clearCart() {
+export async function clearCartItems() {
   const response = await api.delete('/cart');
   return response.data;
 }

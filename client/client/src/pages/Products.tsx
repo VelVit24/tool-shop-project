@@ -5,6 +5,7 @@ import ProductCard from '../components/ProductCard';
 import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
 import './products.css';
 import { useSearchParams, useParams } from 'react-router-dom';
+import Container from '../components/Container';
 
 export default function Products() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -70,36 +71,58 @@ export default function Products() {
     return <div>{error}</div>;
   }
   return (
-    <div className="flex flex-col items-center justify-center gap-y-4">
-      <h1 className="text-3xl font-bold">Товары</h1>
-      <div className="grid grid-cols-2 md:grid-cols-3 sm:grid-cols-2 sm gap-4">
-        {products.map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
-      </div>
-      <div className="flex items-center justify-center mt-4">
-        <button
-          className="border rounded-md flex items-center justify-center w-6.5 h-6.5 mx-1 hover:bg-gray-200 active:bg-gray-400 not-hover:bg-white"
-          hidden={!canGoBack}
-          disabled={!canGoBack}
-          onClick={() => setSearchParams({ page: String(page - 1) })}
-        >
-          <ChevronLeftIcon size={15} />
-        </button>
-        <div className="flex items-center justify-center">
-          {pagination.map((p, index) => {
-            if (p === '...') {
-              return (
-                <span key={index} className="mx-1">
-                  ...
-                </span>
-              );
-            }
-            return (
+    <Container>
+      <div className="flex flex-col gap-y-4">
+        <h1 className="text-3xl font-bold text-center mt-5">Товары</h1>
+
+        <div className="flex gap-x-2">
+          <aside
+            className="
+            flex-none 
+            w-60 border 
+            border-gray-200 
+            p-4 
+            rounded-xl
+            shadow-sm"
+          >
+            <ul>
+              <li>dsafdsfsd</li>
+              <li>dsafdsfsd</li>
+              <li>dsafdsfsd</li>
+              <li>dsafdsfsd</li>
+            </ul>
+          </aside>
+          <div className="flex-1">
+            <div className="flex flex-col gap-y-2">
+              {products.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+            <div className="flex items-center justify-center mt-4">
               <button
-                key={index}
-                onClick={() => setSearchParams({ page: String(p as number) })}
-                className={`
+                className="border rounded-md flex items-center justify-center w-6.5 h-6.5 mx-1 hover:bg-gray-200 active:bg-gray-400 not-hover:bg-white"
+                hidden={!canGoBack}
+                disabled={!canGoBack}
+                onClick={() => setSearchParams({ page: String(page - 1) })}
+              >
+                <ChevronLeftIcon size={15} />
+              </button>
+              <div className="flex items-center justify-center">
+                {pagination.map((p, index) => {
+                  if (p === '...') {
+                    return (
+                      <span key={index} className="mx-1">
+                        ...
+                      </span>
+                    );
+                  }
+                  return (
+                    <button
+                      key={index}
+                      onClick={() =>
+                        setSearchParams({ page: String(p as number) })
+                      }
+                      className={`
                   border rounded-md
                   w-6.5 h-6.5
                   mx-1
@@ -109,22 +132,24 @@ export default function Products() {
 
                   ${page === p ? 'bg-black text-white' : ''}
                 `}
+                    >
+                      {p}
+                    </button>
+                  );
+                })}
+              </div>
+              <button
+                className="border rounded-md flex items-center justify-center w-6.5 h-6.5  p-0.5 mx-1 hover:bg-gray-200 active:bg-gray-400 not-hover:bg-white"
+                disabled={!canGoNext}
+                hidden={!canGoNext}
+                onClick={() => setSearchParams({ page: String(page + 1) })}
               >
-                {p}
+                <ChevronRightIcon size={15} />
               </button>
-            );
-          })}
+            </div>
+          </div>
         </div>
-        <button
-          className="border rounded-md flex items-center justify-center w-6.5 h-6.5  p-0.5 mx-1 hover:bg-gray-200 active:bg-gray-400 not-hover:bg-white"
-          disabled={!canGoNext}
-          hidden={!canGoNext}
-          onClick={() => setSearchParams({ page: String(page + 1) })}
-        >
-          <ChevronRightIcon size={15} />
-        </button>
       </div>
-      <div></div>
-    </div>
+    </Container>
   );
 }

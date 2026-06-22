@@ -22,6 +22,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   function logout() {
     localStorage.removeItem('token');
     setToken(null);
+    localStorage.removeItem('cart');
   }
   return (
     <AuthContext.Provider

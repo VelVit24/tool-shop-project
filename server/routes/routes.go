@@ -22,8 +22,10 @@ func ProductRoutes(r *gin.Engine, h *handlers.ProductHandler) {
 		admin.PUT("/products/:id", h.PutAdminProduct)        // изменение инструмента
 		admin.DELETE("/products/:id", h.DeleteAdminProducts) // удаление инструмента
 	}
-	r.GET("/products/:id", h.GetProductsId) // получение инструмента по id
-	r.GET("/products", h.GetProducts)       // получение всего инструмента
+	r.GET("/products/:slug", h.GetProductsSlug)             // получение инструмента по id
+	r.GET("/products", h.GetProducts)                       // получение всего инструмента
+	r.GET("/products/:slug/images/:ind", h.GetProductImage) // получение изображений инструмента по id
+	r.POST("/products/:slug/images", h.PostProductImage)
 }
 
 func AuthRoutes(r *gin.Engine, h *handlers.AuthHandler) {
@@ -45,7 +47,7 @@ func CategoryRoutes(r *gin.Engine, h *handlers.CategoryHandler) {
 
 func CartRoutes(r *gin.Engine, h *handlers.CartHandler) {
 	r.POST("/cart", mw.AuthMiddleware(), h.PostCart)         // добавление в корзину инструмента id
-	r.PUT("/cart", mw.AuthMiddleware(), h.PutCart)           // изменение элемента корзины
+	r.PUT("/cart/:id", mw.AuthMiddleware(), h.PutCart)       // изменение элемента корзины
 	r.DELETE("/cart/:id", mw.AuthMiddleware(), h.DeleteCart) // удаление элемента корзины
 	r.GET("/cart", mw.AuthMiddleware(), h.GetCart)           // получение всей корзины
 }
