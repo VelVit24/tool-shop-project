@@ -25,6 +25,7 @@ func (r *CartRepository) InsertCart(id_user int, cart *models.Cart) error {
 }
 
 func (r *CartRepository) UpdateCart(id_user int, id int, cart *models.Cart) error {
+	log.Println(id_user, id, cart.Amount)
 	res, err := r.db.Exec("update cart_items set amount=$1 where id_user=$2 and id_product=$3", cart.Amount, id_user, id)
 	if rows, _ := res.RowsAffected(); rows == 0 {
 		return sql.ErrNoRows

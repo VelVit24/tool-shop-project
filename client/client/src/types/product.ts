@@ -14,3 +14,13 @@ export interface ProductResponce {
     total: number
     products: Product[]
 }
+export interface ProductFilters {
+  page: number;
+  limit: number;
+  category?: string;
+  priceFrom?: number;
+  priceTo?: number;
+  inStock?: boolean;
+  search?: string;
+  sort?: string;
+}

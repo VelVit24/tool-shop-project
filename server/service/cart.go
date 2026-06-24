@@ -28,7 +28,7 @@ func (s *CartService) CreateCart(id_user int, cart *models.Cart) error {
 	return err
 }
 func (s *CartService) UpdateCart(id_user int, id int, cart *models.Cart) error {
-	stock, err := s.repo.SelectProductStock(cart.Id_product)
+	stock, err := s.repo.SelectProductStock(id)
 	if err != nil {
 		return err
 	}

@@ -16,7 +16,7 @@ export async function removeCartItem(id_product: number) {
 }
 
 export async function changeCartItemQuantity(id_product: number, amount: number) {
-  const response = await api.put(`/cart`, { id_product, amount });
+  const response = await api.put(`/cart/${id_product}`, { amount });
   return response.data;
 }
 

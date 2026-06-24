@@ -6,6 +6,7 @@ import Auth from './pages/auth/Auth';
 import Cart from './pages/Cart';
 import { OrderPage } from './pages/Order';
 import OrderCreatePage from './pages/CreateOrder';
+import './index.css';
 
 function App() {
   return (

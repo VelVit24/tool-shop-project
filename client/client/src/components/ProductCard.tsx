@@ -2,6 +2,7 @@ import type { Product } from '../types/product';
 import { useCart } from '../context/CartContext';
 import { Minus, Plus } from 'lucide-react';
 import { useState } from 'react';
+import AmountControl from './AmountControl';
 
 interface Props {
   product: Product;
@@ -15,8 +16,8 @@ export default function ProductCard({ product }: Props) {
 
   const inCart = !!cartItem;
 
-  const imageUrl = `http://localhost:8080/static/images/products/${product.slug}/small/1.webp`;
-
+  //const imageUrl = `http://localhost:8080/static/images/products/${product.slug}/small/1.webp`;
+  const imageUrl = `http://localhost:8080/static/images/products/drill-makita-df333/small/1.webp`;
   return (
     <div
       className="
@@ -32,7 +33,7 @@ export default function ProductCard({ product }: Props) {
       />
 
       <div className="flex flex-col flex-1">
-        <h2 className="text-lg font-bold line-clamp-2">{product.name}</h2>
+        <h2>{product.name}</h2>
 
         <p>{product.description}</p>
 
@@ -44,58 +45,34 @@ export default function ProductCard({ product }: Props) {
           <div className="flex flex-row ml-auto gap-5">
             {inCart ? (
               <div className="flex gap-2 ml-auto mr-0">
-                <button
-                  onClick={() => {
-                    const newAmount = cartItem.amount - 1;
-                    setLocalAmount(newAmount.toString());
-                    changeQuantity(cartItem.id_product, newAmount);
-                  }}
-                >
-                  <Minus size={24} />
-                </button>
-
-                <input
-                  value={localAmount}
-                  className="
-                  w-12 border border-gray-200
-                  text-xl text-center rounded-md px-2
-                "
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    setLocalAmount(value);
-                  }}
-                  onBlur={() => {
-                    const value = Number(localAmount);
-
-                    if (Number.isNaN(value) || value < 1) {
-                      setLocalAmount('1');
-                      changeQuantity(cartItem.id_product, 1);
-                      return;
-                    }
-
-                    changeQuantity(cartItem.id_product, value);
-                  }}
+                <AmountControl
+                  value={cartItem.amount}
+                  min={1}
+                  max={product.stock}
+                  onChange={(val) => changeQuantity(product.id, val)}
                 />
-
-                <button
-                  onClick={() => {
-                    const newAmount = cartItem.amount + 1;
-                    setLocalAmount(newAmount.toString());
-                    changeQuantity(cartItem.id_product, newAmount);
-                  }}
-                >
-                  <Plus size={24} />
-                </button>
               </div>
             ) : null}
 
             <button
-              className="
-              h-10 w-40 rounded p-1
-              bg-gray-200 hover:bg-gray-400
-              active:bg-gray-700
-            "
-              onClick={() => addToCart(product)}
+              className={`
+              h-10 w-40 rounded p-1 ring ring-gray-200
+              hover:bg-blue-400 hover:border-gray-400
+              hover:ring-blue-1000
+              active:bg-gray-400
+              inset-shadow-2xs
+              transition-colors duration-200
+              ${inCart ? 'bg-blue-500 text-white' : 'bg-white text-black'}
+
+            `}
+              onClick={() => {
+                inCart
+                  ? changeQuantity(product.id, cartItem.amount + 1)
+                  : (() => {
+                      addToCart(product);
+                      setLocalAmount('1');
+                    })();
+              }}
             >
               {inCart ? 'В корзине' : 'Купить'}
             </button>

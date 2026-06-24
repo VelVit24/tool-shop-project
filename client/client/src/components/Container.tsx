@@ -2,7 +2,8 @@ export default function Container({ children }: { children: React.ReactNode }) {
   return (
     <div
       className="
-      container
+      max-w-360
+
     mx-auto
     px-4
   "
