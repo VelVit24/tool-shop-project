@@ -66,3 +66,8 @@ func (r *CartRepository) SelectProductStock(id_prod int) (int, error) {
 	err := r.db.QueryRow("select stock from products where id=$1", id_prod).Scan(&stock)
 	return stock, err
 }
+
+func (r *CartRepository) DeleteAllCart(id_user int) error {
+	_, err := r.db.Exec("delete from cart_items where id_user=$1", id_user)
+	return err
+}

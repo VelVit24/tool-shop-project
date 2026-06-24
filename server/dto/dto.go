@@ -18,12 +18,27 @@ type CartItems struct {
 	Amount      int    `json:"amount"`
 	IsInStock   bool   `json:"is_in_stock"`
 }
-type OrderView struct {
-	Order      models.Order `json:"order"`
-	UserEmail  string       `json:"user_email"`
-	OrderItems []CartItems  `json:"order_items"`
-}
 
 type ErrorResponce struct {
 	Error string `json:"error"`
+}
+
+type OrderFull struct {
+	Order      models.Order `json:"order"`
+	User       models.User  `json:"user"`
+	OrderItems []CartItems  `json:"cart_items"`
+}
+type OrderResponce struct {
+	Orders []OrderFull `json:"orders"`
+	Page   int         `json:"page"`
+	Limit  int         `json:"limit"`
+	Total  int         `json:"total"`
+}
+
+type OrderRequestNoAuth struct {
+	Phone     string      `json:"phone"`
+	Email     string      `json:"email"`
+	FirstName string      `json:"first_name"`
+	LastName  string      `json:"last_name"`
+	CartItems []CartItems `json:"cart_items"`
 }

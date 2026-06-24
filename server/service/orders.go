@@ -29,11 +29,25 @@ func (s *OrderService) DeleteOrder(id int) error {
 	return err
 }
 
-func (s *OrderService) GetOrders(id_user int, role string, page, limit string) ([]dto.OrderView, error) {
+func (s *OrderService) GetOrders(id_user int, role string, page, limit string) (dto.OrderResponce, error) {
 	p, l, err := PaginationParse(page, limit)
 	if err != nil {
-		return nil, err
+		return dto.OrderResponce{}, err
 	}
-	orders, err := s.repo.SelectOrders(id_user, p, l, role)
-	return orders, err
+	switch role {
+	case "user":
+		orders, err := s.repo.SelectOrders(id_user, p, l, role)
+		return orders, err
+	case "admin":
+		orders, err := s.repo.SelectOrdersAdmin(id_user, p, l, role)
+		return orders, err
+	default:
+		return dto.OrderResponce{}, nil
+	}
+}
+
+func (s *OrderService) CreateOrderOnAuth(orders dto.OrderRequestNoAuth) error {
+	err := s.repo.InsertOrderNoAuth(orders)
+	return err
+
 }

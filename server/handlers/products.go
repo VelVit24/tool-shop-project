@@ -42,6 +42,21 @@ func (h *ProductHandler) PostAdminProduct(c *gin.Context) {
 	}
 	c.Status(200)
 }
+func (h *ProductHandler) PostAdminProductSlug(c *gin.Context) {
+	var request struct {
+		Name string `json:"name"`
+	}
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		return
+	}
+	slug, err := h.service.CreateProductSlug(request.Name)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "slug already exists"})
+		return
+	}
+	c.JSON(200, gin.H{"slug": slug})
+}
 
 func (h *ProductHandler) PutAdminProduct(c *gin.Context) {
 	instr := models.Product{}

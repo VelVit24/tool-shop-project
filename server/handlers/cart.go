@@ -36,7 +36,7 @@ func (h *CartHandler) PostCart(c *gin.Context) {
 	c.Status(200)
 }
 
-func (h *CartHandler) PutCart(c *gin.Context) {
+func (h *CartHandler) PutCartId(c *gin.Context) {
 	id_user, ok := c.Get("user_id")
 	if ok != true {
 		c.JSON(http.StatusUnauthorized, "invalid token")
@@ -59,7 +59,7 @@ func (h *CartHandler) PutCart(c *gin.Context) {
 	}
 	c.Status(200)
 }
-func (h *CartHandler) DeleteCart(c *gin.Context) {
+func (h *CartHandler) DeleteCartId(c *gin.Context) {
 	id_user, ok := c.Get("user_id")
 	if ok != true {
 		c.JSON(http.StatusUnauthorized, "invalid token")
@@ -90,4 +90,17 @@ func (h *CartHandler) GetCart(c *gin.Context) {
 		return
 	}
 	c.JSON(200, carts)
+}
+func (h *CartHandler) DeleteCart(c *gin.Context) {
+	id_user, ok := c.Get("user_id")
+	if !ok {
+		c.JSON(http.StatusUnauthorized, "invalid token")
+		return
+	}
+	err := h.service.DeleteAllCart(id_user.(int))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+	c.Status(204)
 }

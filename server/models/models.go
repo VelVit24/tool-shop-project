@@ -36,6 +36,10 @@ type Order struct {
 	Status    string    `json:"status"`
 	Total     int       `json:"total"`
 	CreatedAt time.Time `json:"created_at"`
+	Phone     string    `json:"phone"`
+	Email     string    `json:"email"`
+	FirstName string    `json:"first_name"`
+	LastName  string    `json:"last_name"`
 }
 type OrderItems struct {
 	Id_product int `json:"id_product"`

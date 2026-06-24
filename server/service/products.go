@@ -23,9 +23,14 @@ func NewProductService(repo *repository.ProductRepository) *ProductService {
 }
 
 func (s *ProductService) CreateProduct(product *models.Product) error {
-	product.Slug = slug.Make(product.Name)
+	//product.Slug = slug.Make(product.Name)
 	err := s.repo.InsertProduct(product)
 	return err
+}
+func (s *ProductService) CreateProductSlug(name string) (string, error) {
+	slug := slug.Make(name)
+	err := s.repo.CheckSlug(slug)
+	return slug, err
 }
 func (s *ProductService) UpdateProduct(product *models.Product) error {
 	err := s.repo.UpdateProduct(product)

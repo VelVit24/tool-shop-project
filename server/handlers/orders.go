@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/VelVit24/projext/dto"
 	"github.com/VelVit24/projext/models"
 	"github.com/VelVit24/projext/service"
 	"github.com/gin-gonic/gin"
@@ -103,4 +104,18 @@ func (h *OrderHandler) GetOrders(c *gin.Context) {
 		return
 	}
 	c.JSON(200, orders)
+}
+
+func (h *OrderHandler) PostOrdersNoAuth(c *gin.Context) {
+	order := dto.OrderRequestNoAuth{}
+	if err := c.ShouldBindJSON(&order); err != nil {
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
+	err := h.service.CreateOrderOnAuth(order)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+	c.Status(201)
 }

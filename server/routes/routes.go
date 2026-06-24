@@ -16,13 +16,14 @@ func Setup(router *gin.Engine, app *app.App) {
 }
 
 func ProductRoutes(r *gin.Engine, h *handlers.ProductHandler) {
-	admin := r.Group("/admin", mw.AuthMiddleware())
+	admin := r.Group("/admin", mw.AuthMiddleware(), mw.CheckAdminMiddleware())
 	{
-		admin.POST("/products", h.PostAdminProduct)          // добавление инструмента
-		admin.PUT("/products/:id", h.PutAdminProduct)        // изменение инструмента
-		admin.DELETE("/products/:id", h.DeleteAdminProducts) // удаление инструмента
+		admin.POST("/products", h.PostAdminProduct)              // добавление инструмента
+		admin.PUT("/products/:id", h.PutAdminProduct)            // изменение инструмента
+		admin.DELETE("/products/:id", h.DeleteAdminProducts)     // удаление инструмента
+		admin.POST("/products/get/slug", h.PostAdminProductSlug) // получение инструмента по slug
 	}
-	r.GET("/products/:slug", h.GetProductsSlug)             // получение инструмента по id
+	r.GET("/products/:slug", h.GetProductsSlug)             // получение инструмента по slug
 	r.GET("/products", h.GetProducts)                       // получение всего инструмента
 	r.GET("/products/:slug/images/:ind", h.GetProductImage) // получение изображений инструмента по id
 	r.POST("/products/:slug/images", h.PostProductImage)
@@ -46,19 +47,21 @@ func CategoryRoutes(r *gin.Engine, h *handlers.CategoryHandler) {
 }
 
 func CartRoutes(r *gin.Engine, h *handlers.CartHandler) {
-	r.POST("/cart", mw.AuthMiddleware(), h.PostCart)         // добавление в корзину инструмента id
-	r.PUT("/cart/:id", mw.AuthMiddleware(), h.PutCart)       // изменение элемента корзины
-	r.DELETE("/cart/:id", mw.AuthMiddleware(), h.DeleteCart) // удаление элемента корзины
-	r.GET("/cart", mw.AuthMiddleware(), h.GetCart)           // получение всей корзины
+	r.POST("/cart", mw.AuthMiddleware(), h.PostCart)           // добавление в корзину инструмента id
+	r.PUT("/cart/:id", mw.AuthMiddleware(), h.PutCartId)       // изменение элемента корзины
+	r.DELETE("/cart/:id", mw.AuthMiddleware(), h.DeleteCartId) // удаление элемента корзины
+	r.GET("/cart", mw.AuthMiddleware(), h.GetCart)             // получение всей корзины
+	r.DELETE("/cart", mw.AuthMiddleware(), h.DeleteCart)       // удаление всей корзины
 }
 
 func OrderRoutes(r *gin.Engine, h *handlers.OrderHandler) {
+	r.POST("/orders/noauth", h.PostOrdersNoAuth)
 	r.POST("/orders", mw.AuthMiddleware(), h.PostOrders) // создание заказа пользователем
 	r.GET("/orders", mw.AuthMiddleware(), h.GetOrders)
 	admin := r.Group("/admin", mw.AuthMiddleware(), mw.CheckAdminMiddleware())
 	{
 		admin.DELETE("/orders/:id", h.DeleteAdminOrders)
 		admin.PUT("/orders/:id", h.PutAdminOrders)
-		admin.GET("/orders", mw.AuthMiddleware(), mw.CheckAdminMiddleware(), h.GetAdminOrders)
+		admin.GET("/orders", h.GetAdminOrders)
 	}
 }

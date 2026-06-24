@@ -46,3 +46,7 @@ func (s *CartService) GetCart(id_user int) ([]dto.CartItems, error) {
 	carts, err := s.repo.SelectCart(id_user)
 	return carts, err
 }
+func (s *CartService) DeleteAllCart(id_user int) error {
+	err := s.repo.DeleteAllCart(id_user)
+	return err
+}

@@ -4,6 +4,8 @@ import Layout from './components/Layout';
 import Index from './pages/Index';
 import Auth from './pages/auth/Auth';
 import Cart from './pages/Cart';
+import { OrderPage } from './pages/Order';
+import OrderCreatePage from './pages/CreateOrder';
 
 function App() {
   return (
@@ -15,6 +17,8 @@ function App() {
           <Route path="/category/:category_slug/" element={<Products />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/cart" element={<Cart />} />
+          <Route path="/orders" element={<OrderPage />} />
+          <Route path="/orders/create" element={<OrderCreatePage />} />
         </Route>
       </Routes>
     </BrowserRouter>

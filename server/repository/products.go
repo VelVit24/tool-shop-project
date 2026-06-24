@@ -129,3 +129,15 @@ func (r *ProductRepository) AddProductImageCount(slug string, count int) error {
 	}
 	return err
 }
+
+func (r *ProductRepository) CheckSlug(slug string) error {
+	id := -1
+	err := r.db.QueryRow("select id from product where slug=$1", slug).Scan(&id)
+	if err != nil {
+		return err
+	}
+	if id != -1 {
+		return fmt.Errorf("slug already exists")
+	}
+	return nil
+}
